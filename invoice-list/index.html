@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Supply Chain Pro - Supplier Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #001677 0%, #90a5ff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .login-section {
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .dashboard-section {
+            display: none;
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #021b8d, #8e9efa);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .invoices-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .invoices-table th {
+            background: #34495e;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .invoices-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .invoices-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .amount {
+            font-weight: bold;
+        }
+        
+        .amount.high-amount {
+            color: #e74c3c;
+        }
+        
+        .status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status.pending {
+            background: #ffeaa7;
+            color: #d63031;
+        }
+        
+        .status.paid {
+            background: #00b894;
+            color: white;
+        }
+        
+        .status.overdue {
+            background: #e17055;
+            color: white;
+        }
+        
+        .welcome-banner {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .logout-btn {
+            float: right;
+            background: #e74c3c;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Smart Supply Chain Pro - Supplier Portal</h1>
+            <p>Supplier Invoice Management Portal</p>
+        </div>
+        
+        <!-- Login Section -->
+        <div class="login-section" id="loginSection">
+            <h2>Supplier Login</h2>
+            <p style="margin-bottom: 30px;">Access your invoice dashboard</p>
+            
+            <form id="loginForm" style="max-width: 400px; margin: 0 auto;">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="button" class="btn" onclick="handleLogin()">Login</button>
+                <div class="error-message" id="errorMessage">Invalid credentials. Try: admin/password123</div>
+            </form>
+            
+            <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 5px;">
+                <h4>Test Credentials:</h4>
+                <p><strong>Username:</strong> admin</p>
+                <p><strong>Password:</strong> password123</p>
+            </div>
+        </div>
+        
+        <!-- Dashboard Section -->
+        <div class="dashboard-section" id="dashboardSection">
+            <div class="welcome-banner">
+                <button class="logout-btn" onclick="logout()">Logout</button>
+                <h2>Welcome back, Supplier Admin!</h2>
+                <p>Your invoice management dashboard</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalInvoices">12</div>
+                    <div>Total Invoices</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pendingAmount">$47,250</div>
+                    <div>Pending Amount</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="overdueCount">3</div>
+                    <div>Overdue Invoices</div>
+                </div>
+            </div>
+            
+            <h3>Recent Invoices</h3>
+            <table class="invoices-table" id="invoicesTable">
+                <thead>
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>Date</th>
+                        <th>Vendor</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Due Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Invoices will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Sample invoice data for testing
+        const invoices = [
+            { id: 'INV-2024-001', date: '2024-01-15', vendor: 'Acme Steel Corp', amount: 15750.00, status: 'pending', dueDate: '2024-02-14' },
+            { id: 'INV-2024-002', date: '2024-01-18', vendor: 'Global Electronics Ltd', amount: 8920.50, status: 'paid', dueDate: '2024-02-17' },
+            { id: 'INV-2024-003', date: '2024-01-22', vendor: 'Premium Parts Inc', amount: 23400.00, status: 'overdue', dueDate: '2024-01-25' },
+            { id: 'INV-2024-004', date: '2024-01-25', vendor: 'Industrial Supply Co', amount: 4250.75, status: 'paid', dueDate: '2024-02-24' },
+            { id: 'INV-2024-005', date: '2024-01-28', vendor: 'Tech Components LLC', amount: 12800.00, status: 'pending', dueDate: '2024-02-27' },
+            { id: 'INV-2024-006', date: '2024-02-02', vendor: 'Metro Manufacturing', amount: 31200.25, status: 'overdue', dueDate: '2024-02-05' },
+            { id: 'INV-2024-007', date: '2024-02-05', vendor: 'Quality Materials Ltd', amount: 7650.00, status: 'paid', dueDate: '2024-03-06' },
+            { id: 'INV-2024-008', date: '2024-02-08', vendor: 'Precision Tools Inc', amount: 18900.50, status: 'pending', dueDate: '2024-03-09' },
+            { id: 'INV-2024-009', date: '2024-02-12', vendor: 'Advanced Systems Corp', amount: 45600.00, status: 'overdue', dueDate: '2024-02-15' },
+            { id: 'INV-2024-010', date: '2024-02-15', vendor: 'Reliable Suppliers LLC', amount: 6780.25, status: 'paid', dueDate: '2024-03-16' },
+            { id: 'INV-2024-011', date: '2024-02-18', vendor: 'Dynamic Industries', amount: 22150.00, status: 'pending', dueDate: '2024-03-19' },
+            { id: 'INV-2024-012', date: '2024-02-22', vendor: 'Elite Components Ltd', amount: 13475.75, status: 'pending', dueDate: '2024-03-23' }
+        ];
+
+        // Login functionality
+        function handleLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple authentication check
+            if (username === 'admin' && password === 'password123') {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('dashboardSection').style.display = 'block';
+                populateInvoices();
+                document.getElementById('errorMessage').style.display = 'none';
+            } else {
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+            return false;
+        }
+
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleLogin();
+            });
+            
+            // Also allow Enter key to submit
+            document.getElementById('password').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleLogin();
+                }
+            });
+        });
+
+        // Populate invoices table
+        function populateInvoices() {
+            const tbody = document.querySelector('#invoicesTable tbody');
+            tbody.innerHTML = '';
+            
+            invoices.forEach(invoice => {
+                const row = document.createElement('tr');
+                const amountClass = invoice.amount > 10000 ? 'amount high-amount' : 'amount';
+                
+                row.innerHTML = `
+                    <td>${invoice.id}</td>
+                    <td>${invoice.date}</td>
+                    <td>${invoice.vendor}</td>
+                    <td class="${amountClass}">$${invoice.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                    <td><span class="status ${invoice.status}">${invoice.status.toUpperCase()}</span></td>
+                    <td>${invoice.dueDate}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            updateStats();
+        }
+
+        // Update statistics
+        function updateStats() {
+            const totalInvoices = invoices.length;
+            const pendingAmount = invoices
+                .filter(inv => inv.status === 'pending' || inv.status === 'overdue')
+                .reduce((sum, inv) => sum + inv.amount, 0);
+            const overdueCount = invoices.filter(inv => inv.status === 'overdue').length;
+            
+            document.getElementById('totalInvoices').textContent = totalInvoices;
+            document.getElementById('pendingAmount').textContent = '$' + pendingAmount.toLocaleString('en-US');
+            document.getElementById('overdueCount').textContent = overdueCount;
+        }
+
+        // Logout functionality
+        function logout() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('loginForm').reset();
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        // Add some dynamic behavior for testing automation
+        setInterval(() => {
+            // Randomly update one invoice amount (simulate real-time updates)
+            if (document.getElementById('dashboardSection').style.display !== 'none') {
+                const randomIndex = Math.floor(Math.random() * invoices.length);
+                const variation = (Math.random() - 0.5) * 1000; // +/- $500 variation
+                invoices[randomIndex].amount = Math.max(1000, invoices[randomIndex].amount + variation);
+                populateInvoices();
+            }
+        }, 30000); // Update every 30 seconds
+    </script>
+</body>
+</html>

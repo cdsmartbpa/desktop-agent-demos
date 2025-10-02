@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart TalentScout Pro - Candidate Evaluation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #001261 0%, #6e88ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .login-card {
+            background: white;
+            padding: 48px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 440px;
+            text-align: center;
+        }
+
+        .login-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            color: #64748b;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 48px;
+            padding: 0 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            height: 48px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .demo-info {
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .demo-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .demo-credentials {
+            font-size: 13px;
+            color: #64748b;
+            font-family: monospace;
+        }
+
+        .app-container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            padding: 30px 0;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-logo {
+            padding: 0 30px 40px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .sidebar-logo h1 {
+            color: #f1f5f9;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            background: #f8fafc;
+        }
+
+        .top-bar {
+            background: white;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 320px;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 42px;
+            padding: 0 16px 0 44px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+
+        .action-btn {
+            height: 42px;
+            padding: 0 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #64748b;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .content-area {
+            padding: 40px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .candidates-section {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .candidate-row {
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .candidate-row:hover {
+            background: #f8fafc;
+        }
+
+        .candidate-summary {
+            display: grid;
+            grid-template-columns: auto 1fr auto auto auto;
+            gap: 24px;
+            padding: 24px;
+            align-items: center;
+        }
+
+        .candidate-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 20px;
+        }
+
+        .candidate-info {
+            min-width: 0;
+        }
+
+        .candidate-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .candidate-position {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .candidate-id-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #f1f5f9;
+            color: #475569;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            font-family: monospace;
+        }
+
+        .candidate-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            max-width: 300px;
+        }
+
+        .skill-tag {
+            padding: 4px 8px;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .candidate-experience {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+            padding: 6px 12px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            white-space: nowrap;
+        }
+
+        .candidate-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 120px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #94a3b8;
+        }
+
+        .status-indicator.evaluated {
+            background: #10b981;
+        }
+
+        .candidate-row.expanded {
+            background: #f8fafc;
+        }
+
+        .candidate-row.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .evaluation-panel {
+            display: none;
+            padding: 32px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .evaluation-panel.visible {
+            display: block;
+        }
+
+        .eval-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .eval-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .eval-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .eval-left {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .rating-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .rating-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+
+        .star-container {
+            display: flex;
+            gap: 4px;
+        }
+
+        .star {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #d1d5db;
+        }
+
+        .star:hover,
+        .star.filled {
+            color: #fbbf24;
+        }
+
+        .eval-right {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .summary-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+
+        .summary-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .summary-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .eval-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .candidate-details {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 24px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        .resume-link {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .resume-link:hover {
+            text-decoration: underline;
+        }
+
+        .candidate-bio {
+            grid-column: 1 / -1;
+            margin-top: 8px;
+        }
+
+        .bio-text {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .top-bar {
+                padding: 0 20px;
+            }
+            
+            .search-bar {
+                width: 200px;
+            }
+            
+            .candidate-summary {
+                grid-template-columns: auto 1fr;
+                gap: 16px;
+            }
+            
+            .candidate-skills,
+            .candidate-experience,
+            .candidate-status {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-overlay">
+        <div class="login-card">
+            <h1 class="login-title">Smart TalentScout Pro</h1>
+            <p class="login-subtitle">Candidate Evaluation Platform</p>
+            
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" id="username" class="form-input" value="">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" id="password" class="form-input" value="">
+            </div>
+            
+            <button class="login-btn" onclick="attemptLogin()">Sign In</button>
+            
+            <div class="demo-info">
+                <div class="demo-title">Demo Credentials</div>
+                <div class="demo-credentials">
+                    Username: hr-admin<br>
+                    Password: recruit123
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="appContainer" class="app-container">
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <h1>Smart TalentScout Pro</h1>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">Candidate Evaluation</div>
+                <div class="top-bar-actions">
+                    <div class="search-bar">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search candidates...">
+                    </div>
+                    <button class="action-btn btn-danger" onclick="clearAllEvaluations()">Clear All</button>
+                    <button class="action-btn btn-secondary" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCount">8</div>
+                        <div class="stat-label">Total Candidates</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="evaluatedCount">0</div>
+                        <div class="stat-label">Evaluated</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="pendingCount">8</div>
+                        <div class="stat-label">Pending Review</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="avgRating">-</div>
+                        <div class="stat-label">Average Rating</div>
+                    </div>
+                </div>
+
+                <div class="candidates-section">
+                    <div class="section-header">
+                        <div class="section-title">Candidate Pipeline</div>
+                    </div>
+                    
+                    <div id="candidatesList">
+                        <!-- Candidates will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Candidate data - corrected mapping to match actual resume assignments
+        const candidates = [
+            {
+                id: 'CAND-001',
+                name: 'Scarlett Foster',
+                position: 'Data Analyst',
+                experience: '3 years',
+                skills: ['Python', 'SQL', 'PostgreSQL', 'Linux Administration', 'Git', 'MS Excel'],
+                summary: 'Dedicated Data Analyst with experience in data ingestion and data quality. Successfully implemented data ingestion processes, improving system efficiency by 30%.',
+                email: 'scarlett.foster@email.com',
+                phone: '(555) 555-1234',
+                resumeUrl: 'https://workdemos.z1.web.core.windows.net/hr-portal/resumes/candidate-001.pdf',
+                evaluation: null
+            },
+            {
+                id: 'CAND-002',
+                name: 'Jason Bourne',
+                position: 'Python Developer',
+                experience: '4 years',
+                skills: ['Python', 'Django', 'Flask', 'RESTful APIs', 'Git', 'Problem-solving'],
+                summary: 'Passionate Python Developer with expertise in Python and web frameworks to create efficient software solutions. Strong foundation in computer science with hands-on experience and project leadership skills.',
+                email: 'johndoe@example.com',
+                phone: '123-456-7890',
+                resumeUrl: 'https://workdemos.z1.web.core.windows.net/hr-portal/resumes/candidate-002.pdf',
+                evaluation: null
+            },
+            {
+                id: 'CAND-003',
+                name: 'Grace Ross',
+                position: 'Junior DevOps Developer',
+                experience: '3 years',
+                skills: ['Python', 'Docker', 'Kubernetes', 'Jira', 'Confluence', 'Data Normalization'],
+                summary: 'Junior DevOps Developer with experience in data analytics and rapid prototyping. Proven track record in designing automated deployment pipelines and reducing deployment times by 50%.',
+                email: 'grace.ross@email.com',
+                phone: '(555) 555-1234',
+                resumeUrl: 'https://workdemos.z1.web.core.windows.net/hr-portal/resumes/candidate-003.pdf',
+                evaluation: null
+            },
+            {
+                id: 'CAND-004',
+                name: 'Charles Carter',
+                position: 'Data Analyst',
+                experience: '3 years',
+                skills: ['SQL', 'Python', 'Tableau', 'Data Modeling', 'ETL Processes', 'Data Visualization'],
+                summary: 'Enthusiastic Data Analyst specializing in Business Intelligence and Visualization. Proficient in SQL, Python, and Tableau with notable achievement of improving data processing efficiency by 20%.',
+                email: 'charles.carter@email.com',
+                phone: '(555) 555-1234',
+                resumeUrl: 'https://workdemos.z1.web.core.windows.net/hr-portal/resumes/candidate-004.pdf',
+                evaluation: null
+            },
+            {
+                id: 'CAND-005',
+                name: 'Michael Watkins',
+                position: 'Python Django Developer',
+                experience: '12+ years',
+                skills: ['Python', 'Django', 'JavaScript', 'HTML', 'CSS', 'MySQL', 'MongoDB'],
+                summary: 'Experienced Python Django Developer with sound knowledge of Object Oriented software development and web development technologies. Extensive experience with database and backend applications.',
+                email: 'michael.watkins@email.com',
+                phone: '(222) 854-4879',
+                resumeUrl: 'https://workdemos.z1.web.core.windows.net/hr-portal/resumes/candidate-005.pdf',
+                evaluation: null
+            },
+            {
+                id: 'CAND-006',
+                name: 'Shako R.',
+                position: 'Fullstack Python Software Engineer',
+                experience: '5+ years',
+                skills: ['Python', 'Django', 'FastAPI', 'VueJS', 'AWS', 'MySQL', 'PostgreSQL'],
+                summary: 'Founder of MySQL User Group and Python User Group. True Pythonista with expertise in Full Stack Python/Django/FastAPI development and deep learning engineering experience.',
+                email: 'info@spacebus.dev',
+                phone: '+994-XX-XXX-XXXX',
+                resumeUrl: 'https://workdemos.z1.web.core.windows.net/hr-portal/resumes/candidate-006.pdf',
+                evaluation: null
+            },
+            {
+                id: 'CAND-007',
+                name: 'Robert Cooper',
+                position: 'Security Guard',
+                experience: '8 years',
+                skills: ['Investigation Skills', 'Safety Compliance', 'Criminal Justice', 'CCTV Monitoring', 'Physical Security'],
+                summary: 'Safety conscious, attentive Security Guard with eight years experience in protecting and guarding VIP individuals in military and defense sectors. Currently finishing bachelor\'s in criminal justice.',
+                email: 'robert.cooper@email.com',
+                phone: '(386) 868-3442',
+                resumeUrl: 'https://workdemos.z1.web.core.windows.net/hr-portal/resumes/candidate-007.pdf',
+                evaluation: null
+            },
+            {
+                id: 'CAND-008',
+                name: 'Blaire Gothelf',
+                position: 'Python Developer',
+                experience: '1 year',
+                skills: ['Python', 'Machine Learning', 'Data Analysis', 'Web Scraping', 'Backend Development'],
+                summary: 'Driven Python Developer with professional experience in designing, developing, and debugging software applications. Proficient in backend development, data analysis, and web scraping with excellent problem-solving skills.',
+                email: 'blaire.gothelf@gmail.com',
+                phone: '(980) 813-5682',
+                resumeUrl: 'https://workdemos.z1.web.core.windows.net/hr-portal/resumes/candidate-008.pdf',
+                evaluation: null
+            }
+        ];
+
+        let filteredCandidates = [...candidates];
+
+        function attemptLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username === 'hr-admin' && password === 'recruit123') {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                renderCandidates();
+                updateStats();
+            } else {
+                alert('Invalid credentials. Please use: hr-admin / recruit123');
+            }
+        }
+
+        function renderCandidates() {
+            const container = document.getElementById('candidatesList');
+            
+            container.innerHTML = filteredCandidates.map(candidate => `
+                <div class="candidate-row" data-candidate-id="${candidate.id}">
+                    <div class="candidate-summary" onclick="toggleEvaluation('${candidate.id}')">
+                        <div class="candidate-avatar">
+                            ${candidate.name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        
+                        <div class="candidate-info">
+                            <div class="candidate-name">${candidate.name}</div>
+                            <div class="candidate-position">${candidate.position}</div>
+                            <div class="candidate-id-badge">${candidate.id}</div>
+                        </div>
+                        
+                        <div class="candidate-skills">
+                            ${candidate.skills.slice(0, 3).map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                            ${candidate.skills.length > 3 ? `<span class="skill-tag">+${candidate.skills.length - 3}</span>` : ''}
+                        </div>
+                        
+                        <div class="candidate-experience">${candidate.experience}</div>
+                        
+                        <div class="candidate-status">
+                            <div class="status-indicator ${candidate.evaluation ? 'evaluated' : ''}"></div>
+                            <span>${candidate.evaluation ? 'Evaluated' : 'Pending'}</span>
+                        </div>
+                        
+                        <div class="expand-icon">▼</div>
+                    </div>
+                    
+                    <div class="evaluation-panel" id="eval-${candidate.id}">
+                        <div class="eval-header">
+                            <span style="font-size: 24px;"></span>
+                            <div>
+                                <div class="eval-title">AI Evaluation - ${candidate.name}</div>
+                                <div style="font-size: 14px; color: #64748b;">Complete the assessment below</div>
+                            </div>
+                        </div>
+                        
+                        <div class="candidate-details">
+                            <div class="details-grid">
+                                <div class="detail-item">
+                                    <div class="detail-label">Email</div>
+                                    <div class="detail-value">${candidate.email}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Phone</div>
+                                    <div class="detail-value">${candidate.phone}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Resume</div>
+                                    <div class="detail-value">
+                                        <a href="${candidate.resumeUrl}" class="resume-link" target="_blank" onclick="event.stopPropagation()">
+                                            📄 View Resume
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">All Skills</div>
+                                    <div class="detail-value">${candidate.skills.join(', ')}</div>
+                                </div>
+                                <div class="detail-item candidate-bio">
+                                    <div class="detail-label">Summary</div>
+                                    <div class="bio-text">${candidate.summary}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="eval-content">
+                            <div class="eval-left">
+                                <div class="rating-section">
+                                    <div class="rating-title">Technical Skills Match</div>
+                                    <div class="star-container" data-rating-type="technical" data-candidate-id="${candidate.id}">
+                                        ${generateStars('technical', candidate.id, candidate.evaluation?.technical || 0)}
+                                    </div>
+                                </div>
+                                
+                                <div class="rating-section">
+                                    <div class="rating-title">Experience Relevance</div>
+                                    <div class="star-container" data-rating-type="experience" data-candidate-id="${candidate.id}">
+                                        ${generateStars('experience', candidate.id, candidate.evaluation?.experience || 0)}
+                                    </div>
+                                </div>
+                                
+                                <div class="rating-section">
+                                    <div class="rating-title">Cultural Fit Assessment</div>
+                                    <div class="star-container" data-rating-type="culture" data-candidate-id="${candidate.id}">
+                                        ${generateStars('culture', candidate.id, candidate.evaluation?.culture || 0)}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="eval-right">
+                                <div class="summary-title">AI Evaluation Summary</div>
+                                <textarea class="summary-textarea" id="summary-${candidate.id}" placeholder="Enter comprehensive AI evaluation summary here. Consider technical capabilities, experience alignment, cultural fit, growth potential, strengths, areas for development, and overall recommendation...">${candidate.evaluation?.summary || ''}</textarea>
+                                
+                                <div class="eval-actions">
+                                    <button class="action-btn btn-secondary" onclick="cancelEvaluation('${candidate.id}')">Cancel</button>
+                                    <button class="action-btn btn-primary" onclick="saveEvaluation('${candidate.id}')">
+                                        <span>💾</span>
+                                        Save Evaluation
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            addStarRatingListeners();
+        }
+
+        function updateStats() {
+            const total = candidates.length;
+            const evaluated = candidates.filter(c => c.evaluation && (c.evaluation.technical || c.evaluation.experience || c.evaluation.culture || c.evaluation.summary)).length;
+            const pending = total - evaluated;
+            
+            let totalRating = 0;
+            let ratingCount = 0;
+            
+            candidates.forEach(candidate => {
+                if (candidate.evaluation) {
+                    if (candidate.evaluation.technical) {
+                        totalRating += candidate.evaluation.technical;
+                        ratingCount++;
+                    }
+                    if (candidate.evaluation.experience) {
+                        totalRating += candidate.evaluation.experience;
+                        ratingCount++;
+                    }
+                    if (candidate.evaluation.culture) {
+                        totalRating += candidate.evaluation.culture;
+                        ratingCount++;
+                    }
+                }
+            });
+            
+            const avgRating = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : '-';
+            
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('evaluatedCount').textContent = evaluated;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('avgRating').textContent = avgRating;
+        }
+
+        function toggleEvaluation(candidateId) {
+            const evalPanel = document.getElementById(`eval-${candidateId}`);
+            const candidateRow = document.querySelector(`[data-candidate-id="${candidateId}"]`);
+            
+            // Close all other panels
+            document.querySelectorAll('.evaluation-panel').forEach(panel => {
+                if (panel.id !== `eval-${candidateId}`) {
+                    panel.classList.remove('visible');
+                    panel.parentElement.classList.remove('expanded');
+                }
+            });
+            
+            if (evalPanel.classList.contains('visible')) {
+                evalPanel.classList.remove('visible');
+                candidateRow.classList.remove('expanded');
+            } else {
+                evalPanel.classList.add('visible');
+                candidateRow.classList.add('expanded');
+            }
+        }
+
+        function generateStars(type, candidateId, currentRating) {
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                const filled = i <= currentRating ? 'filled' : '';
+                starsHtml += `<span class="star ${filled}" data-rating="${i}" onclick="setRating('${type}', '${candidateId}', ${i})">★</span>`;
+            }
+            return starsHtml;
+        }
+
+        function addStarRatingListeners() {
+            document.querySelectorAll('.star').forEach(star => {
+                star.addEventListener('mouseenter', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    const container = this.parentElement;
+                    const stars = container.querySelectorAll('.star');
+                    
+                    stars.forEach((s, index) => {
+                        if (index < rating) {
+                            s.classList.add('filled');
+                        } else {
+                            s.classList.remove('filled');
+                        }
+                    });
+                });
+                
+                star.addEventListener('mouseleave', function() {
+                    const container = this.parentElement;
+                    const candidateId = container.dataset.candidateId;
+                    const ratingType = container.dataset.ratingType;
+                    const candidate = candidates.find(c => c.id === candidateId);
+                    const currentRating = candidate.evaluation?.[ratingType] || 0;
+                    
+                    const stars = container.querySelectorAll('.star');
+                    stars.forEach((s, index) => {
+                        if (index < currentRating) {
+                            s.classList.add('filled');
+                        } else {
+                            s.classList.remove('filled');
+                        }
+                    });
+                });
+            });
+        }
+
+        function setRating(type, candidateId, rating) {
+            const candidate = candidates.find(c => c.id === candidateId);
+            if (!candidate.evaluation) {
+                candidate.evaluation = {};
+            }
+            candidate.evaluation[type] = rating;
+            
+            // Update stars display
+            const container = document.querySelector(`[data-rating-type="${type}"][data-candidate-id="${candidateId}"]`);
+            const stars = container.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('filled');
+                } else {
+                    star.classList.remove('filled');
+                }
+            });
+        }
+
+        function saveEvaluation(candidateId) {
+            const candidate = candidates.find(c => c.id === candidateId);
+            const summaryText = document.getElementById(`summary-${candidateId}`).value;
+            
+            if (!candidate.evaluation) {
+                candidate.evaluation = {};
+            }
+            candidate.evaluation.summary = summaryText;
+            
+            // Close evaluation panel
+            toggleEvaluation(candidateId);
+            
+            // Update display
+            renderCandidates();
+            updateStats();
+            
+            // Show success message
+            alert(`✅ Evaluation saved successfully for ${candidate.name}!`);
+        }
+
+        function cancelEvaluation(candidateId) {
+            toggleEvaluation(candidateId);
+        }
+
+        function clearAllEvaluations() {
+            candidates.forEach(c => c.evaluation = null);
+            renderCandidates();
+            updateStats();
+            
+            // Show success message using alert (which works in artifacts)
+            alert('All evaluations cleared! Ready for next demo.');
+        }
+
+        function logout() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                filteredCandidates = candidates.filter(candidate => 
+                    candidate.name.toLowerCase().includes(searchTerm) ||
+                    candidate.position.toLowerCase().includes(searchTerm) ||
+                    candidate.skills.some(skill => skill.toLowerCase().includes(searchTerm))
+                );
+                renderCandidates();
+            });
+
+            // Allow Enter key for login
+            document.getElementById('password').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') attemptLogin();
+            });
+            
+            document.getElementById('username').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') attemptLogin();
+            });
+        });
+    </script>
+</body>
+</html>
