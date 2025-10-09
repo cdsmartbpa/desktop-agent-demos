@@ -46,6 +46,11 @@
             display: none;
             padding: 30px;
         }
+
+        .supplier-details-section {
+            display: none;
+            padding: 30px;
+        }
         
         .form-group {
             margin-bottom: 20px;
@@ -87,6 +92,11 @@
         .btn:hover {
             transform: translateY(-2px);
         }
+
+        .back-btn {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            margin-bottom: 20px;
+        }
         
         .invoices-table {
             width: 100%;
@@ -111,38 +121,23 @@
             border-bottom: 1px solid #eee;
         }
         
-        .invoices-table tr:hover {
-            background: #f8f9fa;
+        .invoices-table tbody tr {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .invoices-table tbody tr:hover {
+            background: #e3f2fd;
+            transform: scale(1.01);
         }
         
         .amount {
             font-weight: bold;
+            color: #2c3e50;
         }
         
-        .amount.high-amount {
-            color: #e74c3c;
-        }
-        
-        .status {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .status.pending {
-            background: #ffeaa7;
-            color: #d63031;
-        }
-        
-        .status.paid {
-            background: #00b894;
-            color: white;
-        }
-        
-        .status.overdue {
-            background: #e17055;
-            color: white;
+        .amount.credit {
+            color: #00b894;
         }
         
         .welcome-banner {
@@ -185,6 +180,91 @@
             background: #e74c3c;
             padding: 8px 16px;
             font-size: 14px;
+        }
+
+        /* Supplier Details Styles */
+        .supplier-header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .supplier-header h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .invoice-reference {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 15px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .detail-card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+        }
+
+        .detail-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+        }
+
+        .detail-card h3::before {
+            content: "📋";
+            margin-right: 10px;
+        }
+
+        .detail-row {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            color: #2c3e50;
+            font-size: 1em;
+        }
+
+        .payment-terms-box {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .payment-terms-box .detail-label {
+            color: #27ae60;
         }
     </style>
 </head>
@@ -237,23 +317,22 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="pendingAmount">$47,250</div>
-                    <div>Pending Amount</div>
+                    <div>Net Amount</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="overdueCount">3</div>
-                    <div>Overdue Invoices</div>
+                    <div class="stat-number" id="overdueCount">4</div>
+                    <div>Credit Notes</div>
                 </div>
             </div>
             
-            <h3>Recent Invoices</h3>
+            <h3>Recent Invoices & Credit Notes (Click to view supplier details)</h3>
             <table class="invoices-table" id="invoicesTable">
                 <thead>
                     <tr>
-                        <th>Invoice #</th>
+                        <th>Document #</th>
                         <th>Date</th>
                         <th>Vendor</th>
                         <th>Amount</th>
-                        <th>Status</th>
                         <th>Due Date</th>
                     </tr>
                 </thead>
@@ -262,31 +341,502 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Supplier Details Section -->
+        <div class="supplier-details-section" id="supplierDetailsSection">
+            <button class="btn back-btn" onclick="backToDashboard()">← Back to Invoices</button>
+            
+            <div class="supplier-header">
+                <h2 id="supplierName">Acme Steel Corp</h2>
+                <p id="supplierTagline">Steel Manufacturing & Distribution</p>
+                <div class="invoice-reference" id="invoiceRef">Invoice #: INV-2024-001</div>
+            </div>
+
+            <div class="details-grid">
+                <!-- Company Information -->
+                <div class="detail-card">
+                    <h3>Company Information</h3>
+                    <div class="detail-row">
+                        <div class="detail-label">Legal Name</div>
+                        <div class="detail-value" id="legalName">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Business Address</div>
+                        <div class="detail-value" id="businessAddress">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Registration Number</div>
+                        <div class="detail-value" id="registrationNumber">-</div>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="detail-card">
+                    <h3>Contact Information</h3>
+                    <div class="detail-row">
+                        <div class="detail-label">Contact Person</div>
+                        <div class="detail-value" id="contactPerson">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value" id="email">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Phone</div>
+                        <div class="detail-value" id="phone">-</div>
+                    </div>
+                </div>
+
+                <!-- Tax Information -->
+                <div class="detail-card">
+                    <h3>Tax Information</h3>
+                    <div class="detail-row">
+                        <div class="detail-label">VAT Number</div>
+                        <div class="detail-value" id="vatNumber">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Tax ID</div>
+                        <div class="detail-value" id="taxId">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">GST Number</div>
+                        <div class="detail-value" id="gstNumber">-</div>
+                    </div>
+                </div>
+
+                <!-- Banking Information -->
+                <div class="detail-card">
+                    <h3>Banking Information</h3>
+                    <div class="detail-row">
+                        <div class="detail-label">Bank Name</div>
+                        <div class="detail-value" id="bankName">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Account Number / IBAN</div>
+                        <div class="detail-value" id="accountNumber">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">SWIFT/BIC Code</div>
+                        <div class="detail-value" id="swiftCode">-</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Bank Address</div>
+                        <div class="detail-value" id="bankAddress">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Terms -->
+            <div class="payment-terms-box">
+                <div class="detail-label">Payment Terms</div>
+                <div class="detail-value" id="paymentTerms" style="font-size: 1.1em; font-weight: 600;">-</div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Sample invoice data for testing
+        // Helper function to get date X days ago from today
+        function getDaysAgo(days) {
+            const date = new Date();
+            date.setDate(date.getDate() - days);
+            return date.toISOString().split('T')[0];
+        }
+
+        // Helper function to calculate due date based on payment terms
+        function calculateDueDate(invoiceDate, paymentTerms) {
+            const date = new Date(invoiceDate);
+            
+            // Extract number of days from payment terms
+            const netMatch = paymentTerms.match(/Net (\d+)/i);
+            if (netMatch) {
+                const days = parseInt(netMatch[1]);
+                date.setDate(date.getDate() + days);
+            } else {
+                // Default to 30 days if no match
+                date.setDate(date.getDate() + 30);
+            }
+            
+            return date.toISOString().split('T')[0];
+        }
+
+        // Sample invoice data with supplier details
         const invoices = [
-            { id: 'INV-2024-001', date: '2024-01-15', vendor: 'Acme Steel Corp', amount: 15750.00, status: 'pending', dueDate: '2024-02-14' },
-            { id: 'INV-2024-002', date: '2024-01-18', vendor: 'Global Electronics Ltd', amount: 8920.50, status: 'paid', dueDate: '2024-02-17' },
-            { id: 'INV-2024-003', date: '2024-01-22', vendor: 'Premium Parts Inc', amount: 23400.00, status: 'overdue', dueDate: '2024-01-25' },
-            { id: 'INV-2024-004', date: '2024-01-25', vendor: 'Industrial Supply Co', amount: 4250.75, status: 'paid', dueDate: '2024-02-24' },
-            { id: 'INV-2024-005', date: '2024-01-28', vendor: 'Tech Components LLC', amount: -12800.00, status: 'pending', dueDate: '2024-02-27' },
-            { id: 'INV-2024-006', date: '2024-02-02', vendor: 'Metro Manufacturing', amount: 31200.25, status: 'overdue', dueDate: '2024-02-05' },
-            { id: 'INV-2024-007', date: '2024-02-05', vendor: 'Quality Materials Ltd', amount: 7650.00, status: 'paid', dueDate: '2024-03-06' },
-            { id: 'INV-2024-008', date: '2024-02-08', vendor: 'Precision Tools Inc', amount: -18900.50, status: 'pending', dueDate: '2024-03-09' },
-            { id: 'INV-2024-009', date: '2024-02-12', vendor: 'Advanced Systems Corp', amount: 45600.00, status: 'overdue', dueDate: '2024-02-15' },
-            { id: 'INV-2024-010', date: '2024-02-15', vendor: 'Reliable Suppliers LLC', amount: 6780.25, status: 'paid', dueDate: '2024-03-16' },
-            { id: 'INV-2024-011', date: '2024-02-18', vendor: 'Dynamic Industries', amount: 22150.00, status: 'pending', dueDate: '2024-03-19' },
-            { id: 'INV-2024-012', date: '2024-02-22', vendor: 'Elite Components Ltd', amount: 13475.75, status: 'pending', dueDate: '2024-03-23' }
+            { 
+                id: 'ACME-2024-1847', 
+                date: getDaysAgo(10), 
+                vendor: 'Acme Steel Corp', 
+                amount: 15750.00, 
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'Acme Steel Corporation Ltd.',
+                    tagline: 'Steel Manufacturing & Distribution',
+                    businessAddress: '1250 Industrial Parkway, Pittsburgh, PA 15220, USA',
+                    registrationNumber: 'US-REG-2018-45892',
+                    contactPerson: 'John Mitchell - Accounts Receivable',
+                    email: 'ar@acmesteel.com',
+                    phone: '+1 (412) 555-0198',
+                    vatNumber: 'US-VAT-892456123',
+                    taxId: 'EIN: 45-8921456',
+                    gstNumber: 'N/A (US Company)',
+                    bankName: 'First National Bank of Pittsburgh',
+                    accountNumber: 'US92 1234 5678 9012 3456 78',
+                    swiftCode: 'FNBPUS33XXX',
+                    bankAddress: '500 Grant Street, Pittsburgh, PA 15219',
+                    paymentTerms: 'Net 30 days from invoice date'
+                }
+            },
+            { 
+                id: 'GE-INV-2024-5623', 
+                date: getDaysAgo(9), 
+                vendor: 'Global Electronics Ltd', 
+                amount: 8920.50, 
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'Global Electronics Limited',
+                    tagline: 'Electronic Components Supplier',
+                    businessAddress: '88 Technology Drive, Shenzhen, Guangdong 518000, China',
+                    registrationNumber: 'CN-REG-2015-78456',
+                    contactPerson: 'Wei Zhang - Finance Department',
+                    email: 'finance@globalelec.cn',
+                    phone: '+86 755 8888 9999',
+                    vatNumber: 'CN-VAT-445678912',
+                    taxId: 'USCI: 91440300MA5D2K3X4Y',
+                    gstNumber: 'N/A',
+                    bankName: 'Bank of China (Shenzhen Branch)',
+                    accountNumber: 'CN89 1234 5678 9012 3456 7890',
+                    swiftCode: 'BKCHCNBJ450',
+                    bankAddress: '1 Bank Street, Futian District, Shenzhen',
+                    paymentTerms: 'Net 45 days, 2% discount if paid within 10 days'
+                }
+            },
+            { 
+                id: 'PP-24-0389', 
+                date: getDaysAgo(8), 
+                vendor: 'Premium Parts Inc', 
+                amount: 23400.00, 
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'Premium Parts Incorporated',
+                    tagline: 'Precision Hydraulic Components',
+                    businessAddress: '456 Manufacturing Road, Detroit, MI 48201, USA',
+                    registrationNumber: 'US-REG-2012-23456',
+                    contactPerson: 'Sarah Johnson - AR Manager',
+                    email: 'billing@premiumparts.com',
+                    phone: '+1 (313) 555-0142',
+                    vatNumber: 'US-VAT-234567891',
+                    taxId: 'EIN: 38-2345678',
+                    gstNumber: 'N/A',
+                    bankName: 'Chase Bank Michigan',
+                    accountNumber: 'US45 9876 5432 1098 7654 32',
+                    swiftCode: 'CHASUS33XXX',
+                    bankAddress: '270 E Grand River Ave, Detroit, MI 48226',
+                    paymentTerms: 'Net 15 days from invoice date'
+                }
+            },
+            { 
+                id: 'PP-CR-24-0041', 
+                date: getDaysAgo(7), 
+                vendor: 'Premium Parts Inc', 
+                amount: -2850.00, 
+                type: 'credit',
+                supplierDetails: {
+                    legalName: 'Premium Parts Incorporated',
+                    tagline: 'Precision Hydraulic Components',
+                    businessAddress: '456 Manufacturing Road, Detroit, MI 48201, USA',
+                    registrationNumber: 'US-REG-2012-23456',
+                    contactPerson: 'Sarah Johnson - AR Manager',
+                    email: 'billing@premiumparts.com',
+                    phone: '+1 (313) 555-0142',
+                    vatNumber: 'US-VAT-234567891',
+                    taxId: 'EIN: 38-2345678',
+                    gstNumber: 'N/A',
+                    bankName: 'Chase Bank Michigan',
+                    accountNumber: 'US45 9876 5432 1098 7654 32',
+                    swiftCode: 'CHASUS33XXX',
+                    bankAddress: '270 E Grand River Ave, Detroit, MI 48226',
+                    paymentTerms: 'Credit applied immediately'
+                }
+            },
+            { 
+                id: 'ISC2024-991', 
+                date: getDaysAgo(7), 
+                vendor: 'Industrial Supply Co', 
+                amount: 4250.75, 
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'Industrial Supply Company LLC',
+                    tagline: 'Safety Equipment & Supplies',
+                    businessAddress: '789 Commerce Street, Houston, TX 77002, USA',
+                    registrationNumber: 'US-REG-2019-67890',
+                    contactPerson: 'Mike Roberts - Accounts Department',
+                    email: 'accounts@industrialsupply.com',
+                    phone: '+1 (713) 555-0176',
+                    vatNumber: 'US-VAT-678901234',
+                    taxId: 'EIN: 76-6789012',
+                    gstNumber: 'N/A',
+                    bankName: 'Wells Fargo Bank Texas',
+                    accountNumber: 'US78 3456 7890 1234 5678 90',
+                    swiftCode: 'WFBIUS6SXXX',
+                    bankAddress: '1000 Louisiana St, Houston, TX 77002',
+                    paymentTerms: 'Net 30 days, payment by wire transfer or check'
+                }
+            },
+            { 
+                id: 'TC-2024-8821', 
+                date: getDaysAgo(6), 
+                vendor: 'Tech Components LLC', 
+                amount: 12800.00, 
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'Tech Components LLC',
+                    tagline: 'Advanced Microprocessor Solutions',
+                    businessAddress: '321 Silicon Valley Blvd, San Jose, CA 95110, USA',
+                    registrationNumber: 'US-REG-2020-11223',
+                    contactPerson: 'David Chen - Billing Coordinator',
+                    email: 'billing@techcomponents.com',
+                    phone: '+1 (408) 555-0198',
+                    vatNumber: 'US-VAT-112233445',
+                    taxId: 'EIN: 94-1122334',
+                    gstNumber: 'N/A',
+                    bankName: 'Silicon Valley Bank',
+                    accountNumber: 'US56 2468 1357 9024 6813 57',
+                    swiftCode: 'SVBKUS6SXXX',
+                    bankAddress: '3003 Tasman Dr, Santa Clara, CA 95054',
+                    paymentTerms: 'Net 60 days, ACH or wire transfer accepted'
+                }
+            },
+            { 
+                id: 'MM-INV-2024-3347', 
+                date: getDaysAgo(5), 
+                vendor: 'Metro Manufacturing', 
+                amount: 31200.25, 
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'Metro Manufacturing Industries Ltd.',
+                    tagline: 'Custom Metal Fabrication',
+                    businessAddress: '1500 Factory Lane, Toronto, ON M5H 2N2, Canada',
+                    registrationNumber: 'CA-REG-2014-55667',
+                    contactPerson: 'Emma Wilson - Finance Controller',
+                    email: 'finance@metromanufacturing.ca',
+                    phone: '+1 (416) 555-0134',
+                    vatNumber: 'N/A',
+                    taxId: 'BN: 123456789RT0001',
+                    gstNumber: 'GST: 123456789RT0001',
+                    bankName: 'Royal Bank of Canada',
+                    accountNumber: 'CA12 3456 7890 1234 5678 901',
+                    swiftCode: 'ROYCCAT2XXX',
+                    bankAddress: '200 Bay Street, Toronto, ON M5J 2J5',
+                    paymentTerms: 'Net 20 days, CAD or USD accepted'
+                }
+            },
+            { 
+                id: 'TC-CR-2024-0156', 
+                date: getDaysAgo(4), 
+                vendor: 'Tech Components LLC', 
+                amount: -1920.00, 
+                type: 'credit',
+                supplierDetails: {
+                    legalName: 'Tech Components LLC',
+                    tagline: 'Advanced Microprocessor Solutions',
+                    businessAddress: '321 Silicon Valley Blvd, San Jose, CA 95110, USA',
+                    registrationNumber: 'US-REG-2020-11223',
+                    contactPerson: 'David Chen - Billing Coordinator',
+                    email: 'billing@techcomponents.com',
+                    phone: '+1 (408) 555-0198',
+                    vatNumber: 'US-VAT-112233445',
+                    taxId: 'EIN: 94-1122334',
+                    gstNumber: 'N/A',
+                    bankName: 'Silicon Valley Bank',
+                    accountNumber: 'US56 2468 1357 9024 6813 57',
+                    swiftCode: 'SVBKUS6SXXX',
+                    bankAddress: '3003 Tasman Dr, Santa Clara, CA 95054',
+                    paymentTerms: 'Credit applied to account'
+                }
+            },
+            { 
+                id: 'QML-240567', 
+                date: getDaysAgo(4), 
+                vendor: 'Quality Materials Ltd', 
+                amount: 7650.00, 
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'Quality Materials Limited',
+                    tagline: 'Premium Raw Materials Supplier',
+                    businessAddress: '67 Industrial Estate, Birmingham B12 0BJ, United Kingdom',
+                    registrationNumber: 'UK-REG-2016-88990',
+                    contactPerson: 'James Thomson - Accounts Receivable',
+                    email: 'ar@qualitymaterials.co.uk',
+                    phone: '+44 121 555 0198',
+                    vatNumber: 'GB-VAT-889900123',
+                    taxId: 'UK-TAX-889900',
+                    gstNumber: 'N/A',
+                    bankName: 'Barclays Bank PLC',
+                    accountNumber: 'GB89 BARC 2000 0055 6677 88',
+                    swiftCode: 'BARCGB22XXX',
+                    bankAddress: '1 Churchill Place, London E14 5HP',
+                    paymentTerms: 'Net 30 days, payment in GBP via BACS or SWIFT'
+                }
+            },
+            { 
+                id: 'PTI-2024-4429', 
+                date: getDaysAgo(3), 
+                vendor: 'Precision Tools Inc', 
+                amount: 18900.50, 
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'Precision Tools Incorporated',
+                    tagline: 'Calibrated Measurement Instruments',
+                    businessAddress: '890 Precision Way, Milwaukee, WI 53202, USA',
+                    registrationNumber: 'US-REG-2017-44556',
+                    contactPerson: 'Robert Anderson - Billing Manager',
+                    email: 'billing@precisiontools.com',
+                    phone: '+1 (414) 555-0187',
+                    vatNumber: 'US-VAT-445566778',
+                    taxId: 'EIN: 39-4455667',
+                    gstNumber: 'N/A',
+                    bankName: 'BMO Harris Bank',
+                    accountNumber: 'US67 1122 3344 5566 7788 99',
+                    swiftCode: 'HATRUS44XXX',
+                    bankAddress: '770 N Water St, Milwaukee, WI 53202',
+                    paymentTerms: 'Net 30 days, 1% discount if paid within 15 days'
+                }
+            },
+            { 
+                id: 'ASC-INV-24-0812', 
+                date: getDaysAgo(2), 
+                vendor: 'Advanced Systems Corp', 
+                amount: 45600.00, 
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'Advanced Systems Corporation',
+                    tagline: 'Industrial Control Systems',
+                    businessAddress: '2100 Tech Center Drive, Boston, MA 02101, USA',
+                    registrationNumber: 'US-REG-2013-99887',
+                    contactPerson: 'Lisa Martinez - Director of Finance',
+                    email: 'finance@advancedsystems.com',
+                    phone: '+1 (617) 555-0145',
+                    vatNumber: 'US-VAT-998877665',
+                    taxId: 'EIN: 04-9988776',
+                    gstNumber: 'N/A',
+                    bankName: 'Bank of America Massachusetts',
+                    accountNumber: 'US34 5566 7788 9900 1122 33',
+                    swiftCode: 'BOFAUS3NXXX',
+                    bankAddress: '100 Federal St, Boston, MA 02110',
+                    paymentTerms: 'Net 30 days, milestone-based payments available'
+                }
+            },
+            { 
+                id: 'MM-CR-2024-0089', 
+                date: getDaysAgo(2), 
+                vendor: 'Metro Manufacturing', 
+                amount: -5200.00, 
+                type: 'credit',
+                supplierDetails: {
+                    legalName: 'Metro Manufacturing Industries Ltd.',
+                    tagline: 'Custom Metal Fabrication',
+                    businessAddress: '1500 Factory Lane, Toronto, ON M5H 2N2, Canada',
+                    registrationNumber: 'CA-REG-2014-55667',
+                    contactPerson: 'Emma Wilson - Finance Controller',
+                    email: 'finance@metromanufacturing.ca',
+                    phone: '+1 (416) 555-0134',
+                    vatNumber: 'N/A',
+                    taxId: 'BN: 123456789RT0001',
+                    gstNumber: 'GST: 123456789RT0001',
+                    bankName: 'Royal Bank of Canada',
+                    accountNumber: 'CA12 3456 7890 1234 5678 901',
+                    swiftCode: 'ROYCCAT2XXX',
+                    bankAddress: '200 Bay Street, Toronto, ON M5J 2J5',
+                    paymentTerms: 'Credit applied immediately'
+                }
+            },
+            { 
+                id: 'RS-24-7734', 
+                date: getDaysAgo(2), 
+                vendor: 'Reliable Suppliers LLC', 
+                amount: 6780.25, 
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'Reliable Suppliers LLC',
+                    tagline: 'Office Supplies & Equipment',
+                    businessAddress: '445 Business Park Drive, Atlanta, GA 30303, USA',
+                    registrationNumber: 'US-REG-2021-33445',
+                    contactPerson: 'Patricia Davis - Accounts Manager',
+                    email: 'accounts@reliablesuppliers.com',
+                    phone: '+1 (404) 555-0167',
+                    vatNumber: 'US-VAT-334455667',
+                    taxId: 'EIN: 58-3344556',
+                    gstNumber: 'N/A',
+                    bankName: 'SunTrust Bank (now Truist)',
+                    accountNumber: 'US89 7788 9900 1122 3344 55',
+                    swiftCode: 'SNTRUS3AXXX',
+                    bankAddress: '303 Peachtree St NE, Atlanta, GA 30308',
+                    paymentTerms: 'Net 45 days, credit card payments accepted'
+                }
+            },
+            { 
+                id: 'DI-2024-5591', 
+                date: getDaysAgo(1), 
+                vendor: 'Dynamic Industries', 
+                amount: 22150.00, 
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'Dynamic Industries Pty Ltd',
+                    tagline: 'Motor Assemblies & Components',
+                    businessAddress: '78 Manufacturing Street, Sydney NSW 2000, Australia',
+                    registrationNumber: 'AU-REG-2018-66778',
+                    contactPerson: 'Andrew Thompson - Financial Controller',
+                    email: 'finance@dynamicindustries.com.au',
+                    phone: '+61 2 5555 0198',
+                    vatNumber: 'N/A',
+                    taxId: 'ABN: 12 345 678 901',
+                    gstNumber: 'GST: 12 345 678 901',
+                    bankName: 'Commonwealth Bank of Australia',
+                    accountNumber: 'AU45 1234 5678 9012 3456',
+                    swiftCode: 'CTBAAU2SXXX',
+                    bankAddress: 'Tower 1, 201 Sussex St, Sydney NSW 2000',
+                    paymentTerms: 'Net 30 days, payment in AUD or USD'
+                }
+            },
+            { 
+                id: 'EC-24-9823', 
+                date: getDaysAgo(1), 
+                vendor: 'Elite Components Ltd', 
+                amount: 13475.75, 
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'Elite Components Limited',
+                    tagline: 'Specialized Electronic Connectors',
+                    businessAddress: '234 Electronics Way, Munich 80331, Germany',
+                    registrationNumber: 'DE-REG-2015-77889',
+                    contactPerson: 'Hans Mueller - Accounts Department',
+                    email: 'rechnungen@elitecomponents.de',
+                    phone: '+49 89 5555 0198',
+                    vatNumber: 'DE-VAT-778899001',
+                    taxId: 'Steuernummer: 143/456/78901',
+                    gstNumber: 'N/A',
+                    bankName: 'Deutsche Bank AG',
+                    accountNumber: 'DE89 1234 5678 9012 3456 78',
+                    swiftCode: 'DEUTDEMMXXX',
+                    bankAddress: 'Taunusanlage 12, 60325 Frankfurt am Main',
+                    paymentTerms: 'Net 30 days, payment in EUR via SEPA transfer'
+                }
+            }
         ];
+
+        // Calculate due dates for all invoices
+        invoices.forEach(invoice => {
+            if (invoice.type === 'credit') {
+                invoice.dueDate = 'N/A';
+            } else {
+                invoice.dueDate = calculateDueDate(invoice.date, invoice.supplierDetails.paymentTerms);
+            }
+        });
 
         // Login functionality
         function handleLogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
-            // Simple authentication check
             if (username === 'admin' && password === 'password123') {
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('dashboardSection').style.display = 'block';
@@ -305,7 +855,6 @@
                 handleLogin();
             });
             
-            // Also allow Enter key to submit
             document.getElementById('password').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -321,16 +870,21 @@
             
             invoices.forEach(invoice => {
                 const row = document.createElement('tr');
-                const amountClass = invoice.amount > 10000 ? 'amount high-amount' : 'amount';
+                const amountClass = invoice.amount < 0 ? 'amount credit' : 'amount';
+                const formattedAmount = invoice.amount < 0 
+                    ? `-$${Math.abs(invoice.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}` 
+                    : `$${invoice.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
                 
                 row.innerHTML = `
                     <td>${invoice.id}</td>
                     <td>${invoice.date}</td>
                     <td>${invoice.vendor}</td>
-                    <td class="${amountClass}">$${invoice.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                    <td><span class="status ${invoice.status}">${invoice.status.toUpperCase()}</span></td>
+                    <td class="${amountClass}">${formattedAmount}</td>
                     <td>${invoice.dueDate}</td>
                 `;
+                
+                // Add click event to show supplier details
+                row.addEventListener('click', () => showSupplierDetails(invoice));
                 
                 tbody.appendChild(row);
             });
@@ -338,37 +892,75 @@
             updateStats();
         }
 
+        // Show supplier details
+        function showSupplierDetails(invoice) {
+            const details = invoice.supplierDetails;
+            const docType = invoice.type === 'credit' ? 'Credit Note' : 'Invoice';
+            
+            // Update header
+            document.getElementById('supplierName').textContent = invoice.vendor;
+            document.getElementById('supplierTagline').textContent = details.tagline;
+            
+            const formattedAmount = invoice.amount < 0 
+                ? `-$${Math.abs(invoice.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}` 
+                : `$${invoice.amount.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            
+            document.getElementById('invoiceRef').textContent = `${docType} #: ${invoice.id} | Amount: ${formattedAmount}`;
+            
+            // Update company information
+            document.getElementById('legalName').textContent = details.legalName;
+            document.getElementById('businessAddress').textContent = details.businessAddress;
+            document.getElementById('registrationNumber').textContent = details.registrationNumber;
+            
+            // Update contact information
+            document.getElementById('contactPerson').textContent = details.contactPerson;
+            document.getElementById('email').textContent = details.email;
+            document.getElementById('phone').textContent = details.phone;
+            
+            // Update tax information
+            document.getElementById('vatNumber').textContent = details.vatNumber;
+            document.getElementById('taxId').textContent = details.taxId;
+            document.getElementById('gstNumber').textContent = details.gstNumber;
+            
+            // Update banking information
+            document.getElementById('bankName').textContent = details.bankName;
+            document.getElementById('accountNumber').textContent = details.accountNumber;
+            document.getElementById('swiftCode').textContent = details.swiftCode;
+            document.getElementById('bankAddress').textContent = details.bankAddress;
+            
+            // Update payment terms
+            document.getElementById('paymentTerms').textContent = details.paymentTerms;
+            
+            // Show supplier details section and hide dashboard
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('supplierDetailsSection').style.display = 'block';
+        }
+
+        // Back to dashboard
+        function backToDashboard() {
+            document.getElementById('supplierDetailsSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+        }
+
         // Update statistics
         function updateStats() {
-            const totalInvoices = invoices.length;
-            const pendingAmount = invoices
-                .filter(inv => inv.status === 'pending' || inv.status === 'overdue')
-                .reduce((sum, inv) => sum + inv.amount, 0);
-            const overdueCount = invoices.filter(inv => inv.status === 'overdue').length;
+            const totalInvoices = invoices.filter(inv => inv.type === 'invoice').length;
+            const pendingAmount = invoices.reduce((sum, inv) => sum + inv.amount, 0);
+            const creditNotes = invoices.filter(inv => inv.type === 'credit').length;
             
             document.getElementById('totalInvoices').textContent = totalInvoices;
             document.getElementById('pendingAmount').textContent = '$' + pendingAmount.toLocaleString('en-US');
-            document.getElementById('overdueCount').textContent = overdueCount;
+            document.getElementById('overdueCount').textContent = creditNotes;
         }
 
         // Logout functionality
         function logout() {
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('supplierDetailsSection').style.display = 'none';
             document.getElementById('loginForm').reset();
             document.getElementById('errorMessage').style.display = 'none';
         }
-
-        // Add some dynamic behavior for testing automation
-        setInterval(() => {
-            // Randomly update one invoice amount (simulate real-time updates)
-            if (document.getElementById('dashboardSection').style.display !== 'none') {
-                const randomIndex = Math.floor(Math.random() * invoices.length);
-                const variation = (Math.random() - 0.5) * 1000; // +/- $500 variation
-                invoices[randomIndex].amount = Math.max(1000, invoices[randomIndex].amount + variation);
-                populateInvoices();
-            }
-        }, 30000); // Update every 30 seconds
     </script>
 </body>
 </html>
