@@ -461,6 +461,82 @@
 
         // Sample invoice data with supplier details
         const invoices = [
+            // FRAUDULENT INVOICE #1 - Future date, FREE EMAIL, suspicious round amount
+            { 
+                id: 'QPS-2025-8472', 
+                date: '2025-12-25', // Future date - red flag
+                vendor: 'QuickPay Solutions Ltd', 
+                amount: 50000.00, // Suspiciously round amount
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'QuickPay Solutions Limited',
+                    tagline: 'Services',  // Vague description
+                    businessAddress: '123 Main St',  // Too short address
+                    registrationNumber: 'UK-REG-2023-45892',
+                    contactPerson: 'John Doe - Sales',
+                    email: 'urgent.payment@gmail.com',  // FREE EMAIL PROVIDER - critical red flag
+                    phone: '+44 20 1234',  // Invalid phone format
+                    vatNumber: 'UK-VAT-123',  // Invalid VAT format
+                    taxId: 'N/A',
+                    gstNumber: 'N/A',
+                    bankName: 'Offshore Bank Ltd',
+                    accountNumber: 'GB11 2222',  // Too short IBAN
+                    swiftCode: 'INVALID',  // Invalid SWIFT format
+                    bankAddress: 'Unknown',
+                    paymentTerms: 'Net 3 days - URGENT PAYMENT REQUIRED'  // Unusually short
+                }
+            },
+            // FRAUDULENT INVOICE #2 - Name mismatch, no banking details
+            { 
+                id: 'GTI-2024-5892', 
+                date: getDaysAgo(5), 
+                vendor: 'Global Tech Industries', 
+                amount: 100000.00, // Suspiciously round and high
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'Global Technology Solutions International Ltd',  // Similar but different name
+                    tagline: 'IT Infrastructure and Cloud Services',
+                    businessAddress: 'Suite 450, Business Center, 789 Tech Boulevard, Austin, TX 78701, USA',
+                    registrationNumber: 'US-REG-2024-67834',
+                    contactPerson: 'Michael Chen - Accounts Receivable',
+                    email: 'billing@globaltech-solutions.xyz',  // Suspicious domain
+                    phone: '+1 (512) 555-0198',
+                    vatNumber: 'US-VAT-000000000',  // All zeros
+                    taxId: 'EIN: 45-0000000',
+                    gstNumber: 'N/A',
+                    bankName: '-',  // Missing bank name
+                    accountNumber: '-',  // Missing account number
+                    swiftCode: '-',  // Missing SWIFT
+                    bankAddress: '-',
+                    paymentTerms: 'Net 5 days, wire transfer only to be confirmed'
+                }
+            },
+            // FRAUDULENT INVOICE #3 - Old invoice (over 1 year), suspicious credit note
+            { 
+                id: 'PS-CR-2023-8845', 
+                date: '2023-01-15',  // Over 1 year old
+                vendor: 'Phoenix Supply Solutions Inc', 
+                amount: -25000.00,  // Large credit note
+                type: 'credit',
+                supplierDetails: {
+                    legalName: 'Phoenix Supply Solutions Incorporated',
+                    tagline: 'Industrial Equipment & Safety Supplies',
+                    businessAddress: '2847 Commerce Drive, Henderson, NV 89014, USA',
+                    registrationNumber: 'US-REG-2020-67234',
+                    contactPerson: 'Jennifer Morrison - Credit Department',
+                    email: 'credits@phoenixsupply.com',
+                    phone: '+1 (702) 555-0167',
+                    vatNumber: 'US-VAT-888456123',
+                    taxId: 'EIN: 99-8884567',
+                    gstNumber: 'N/A',
+                    bankName: 'Nevada State Bank',
+                    accountNumber: 'US88 9988 7766 5544 3322 11',
+                    swiftCode: 'NSBKUS88XXX',
+                    bankAddress: '1234 Bank Plaza, Las Vegas, NV 89101',
+                    paymentTerms: 'Credit applied to account balance'
+                }
+            },
+            // LEGITIMATE INVOICE (for comparison)
             { 
                 id: 'ACME-2024-1847', 
                 date: getDaysAgo(10), 
@@ -483,6 +559,31 @@
                     swiftCode: 'FNBPUS33XXX',
                     bankAddress: '500 Grant Street, Pittsburgh, PA 15219',
                     paymentTerms: 'Net 30 days from invoice date'
+                }
+            },
+            // FRAUDULENT INVOICE #4 - Threshold avoidance, CRYPTO payment, long terms
+            { 
+                id: 'TSG-2024-7721', 
+                date: getDaysAgo(3), 
+                vendor: 'Tech Solutions Group', 
+                amount: 9950.00,  // JUST BELOW $10K threshold - avoidance pattern
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'Technology Solutions Group International LLC',  // Similar but slightly different
+                    tagline: 'Professional consulting services',  // Vague generic description
+                    businessAddress: '456 Innovation Drive, Suite 850, San Francisco, CA 94102, USA',
+                    registrationNumber: 'US-REG-2024-54782',
+                    contactPerson: 'Robert Anderson - Billing Department',
+                    email: 'invoicing@tech-solutions-grp.info',  // .info domain (suspicious)
+                    phone: '+1 (415) 555-0142',
+                    vatNumber: 'US-VAT-774568921',
+                    taxId: 'EIN: 77-4568921',
+                    gstNumber: 'N/A',
+                    bankName: 'Pacific International Bank',
+                    accountNumber: 'US77 4567 8912 3456 7891 23',
+                    swiftCode: 'PIBKUS77XXX',
+                    bankAddress: '890 Financial Plaza, San Francisco, CA 94103',
+                    paymentTerms: 'Net 120 days, Bitcoin or wire transfer accepted'  // CRYPTO + unusually long
                 }
             },
             { 
@@ -531,6 +632,31 @@
                     swiftCode: 'CHASUS33XXX',
                     bankAddress: '270 E Grand River Ave, Detroit, MI 48226',
                     paymentTerms: 'Net 15 days from invoice date'
+                }
+            },
+            // FRAUDULENT INVOICE #5 - Zero amount invoice (should never happen)
+            { 
+                id: 'ZVT-2024-6633', 
+                date: getDaysAgo(6), 
+                vendor: 'Zenith Valve Technologies', 
+                amount: 0.00,  // Zero amount - critical red flag
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'Zenith Valve Technologies Corporation',
+                    tagline: 'Industrial Valve Solutions',
+                    businessAddress: '3200 Industrial Parkway, Cleveland, OH 44115, USA',
+                    registrationNumber: 'US-REG-2024-23456',
+                    contactPerson: 'David Martinez - Accounts',
+                    email: 'billing@zenithvalve.com',
+                    phone: '+1 (216) 555-0134',
+                    vatNumber: 'US-VAT-234567890',
+                    taxId: 'EIN: 34-2345678',
+                    gstNumber: 'N/A',
+                    bankName: 'KeyBank Ohio',
+                    accountNumber: 'US23 4567 8901 2345 6789 01',
+                    swiftCode: 'KEYBUS33XXX',
+                    bankAddress: '127 Public Square, Cleveland, OH 44114',
+                    paymentTerms: 'Net 30 days from invoice date'
                 }
             },
             { 
@@ -603,6 +729,31 @@
                     swiftCode: 'SVBKUS6SXXX',
                     bankAddress: '3003 Tasman Dr, Santa Clara, CA 95054',
                     paymentTerms: 'Net 60 days, ACH or wire transfer accepted'
+                }
+            },
+            // FRAUDULENT INVOICE #6 - Wrong state (positive credit note)
+            { 
+                id: 'IAL-CR-2024-9923', 
+                date: getDaysAgo(4), 
+                vendor: 'Industrial Automation Ltd', 
+                amount: 15000.00,  // Positive amount but marked as credit - wrong!
+                type: 'credit',
+                supplierDetails: {
+                    legalName: 'Industrial Automation Limited',
+                    tagline: 'Factory Automation Systems',
+                    businessAddress: '156 Manufacturing Road, Birmingham B6 7DN, United Kingdom',
+                    registrationNumber: 'UK-REG-2024-56789',
+                    contactPerson: 'Thomas Richardson - Finance',
+                    email: 'accounts@industrial-automation.co.uk',
+                    phone: '+44 121 555 0176',
+                    vatNumber: 'GB-VAT-567891234',
+                    taxId: 'UK-TAX-567891',
+                    gstNumber: 'N/A',
+                    bankName: 'HSBC UK Bank PLC',
+                    accountNumber: 'GB56 HSBC 2000 0067 8912 34',
+                    swiftCode: 'HBUKGB4BXXX',
+                    bankAddress: '1 Centenary Square, Birmingham B1 1HQ',
+                    paymentTerms: 'Credit note - refund issued'
                 }
             },
             { 
@@ -773,6 +924,31 @@
                     paymentTerms: 'Net 45 days, credit card payments accepted'
                 }
             },
+            // FRAUDULENT INVOICE #8 - Bank country mismatch, missing EU VAT, Yahoo email
+            { 
+                id: 'ETG-2024-4521', 
+                date: getDaysAgo(2), 
+                vendor: 'European Trading GmbH', 
+                amount: 4990.00,  // Just below $5K threshold
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'European Trading GmbH',
+                    tagline: 'Various services',  // Vague
+                    businessAddress: 'Berlin, DE 10115, Germany',  // German company
+                    registrationNumber: 'DE-REG-2024-89432',
+                    contactPerson: 'Hans Mueller',
+                    email: 'trading.europe@yahoo.com',  // FREE EMAIL PROVIDER (Yahoo)
+                    phone: '+49 30 1111 1111',
+                    vatNumber: '-',  // MISSING VAT for EU company - critical!
+                    taxId: '-',
+                    gstNumber: 'N/A',
+                    bankName: 'Bank of China',  // Chinese bank for German company!
+                    accountNumber: 'CN11 1111 1111 1111 1111 1111',  // CN = China
+                    swiftCode: 'BKCHCN11XXX',
+                    bankAddress: 'Shanghai, China',  // BANK COUNTRY MISMATCH
+                    paymentTerms: 'Net 30 days from invoice date'
+                }
+            },
             { 
                 id: 'DI-2024-5591', 
                 date: getDaysAgo(1), 
@@ -795,6 +971,31 @@
                     swiftCode: 'CTBAAU2SXXX',
                     bankAddress: 'Tower 1, 201 Sussex St, Sydney NSW 2000',
                     paymentTerms: 'Net 30 days, payment in AUD or USD'
+                }
+            },
+            // FRAUDULENT INVOICE #7 - Invalid email, PAYPAL payment, personal account
+            { 
+                id: 'UPS-2024-5578', 
+                date: getDaysAgo(1), 
+                vendor: 'United Processing Services', 
+                amount: 24950.00,  // Just below $25K threshold
+                type: 'invoice',
+                supplierDetails: {
+                    legalName: 'United Processing Services LLC',
+                    tagline: 'Business process outsourcing',
+                    businessAddress: '4500 Executive Park, Tampa, FL 33607, USA',
+                    registrationNumber: 'US-REG-2024-36129',
+                    contactPerson: 'Sandra Williams - Billing',
+                    email: 'payments.processing.urgent',  // Invalid email format (no @)
+                    phone: '+1 (813) 555-0198',
+                    vatNumber: 'US-VAT-362901478',
+                    taxId: 'EIN: 59-3629014',
+                    gstNumber: 'N/A',
+                    bankName: 'Mr James Thompson Personal Savings Account',  // PERSONAL ACCOUNT indicator
+                    accountNumber: 'US36 2901 4785 9632 1478 52',
+                    swiftCode: 'WFBIUS6SXXX',
+                    bankAddress: '100 S Ashley Dr, Tampa, FL 33602',
+                    paymentTerms: 'Immediate payment required via PayPal or Venmo - Net 1 day'  // UNUSUAL PAYMENT METHODS
                 }
             },
             { 
